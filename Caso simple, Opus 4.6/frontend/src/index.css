@@ -1,0 +1,22 @@
+/* ─── Reset y base ─────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #fef9ef 0%, #fdf2e9 50%, #eaf6fc 100%);
+  min-height: 100vh;
+  color: #2d3436;
+  line-height: 1.6;
+}
+
+#root {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
