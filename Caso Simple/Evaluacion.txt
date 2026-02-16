@@ -1,0 +1,1 @@
+Lovable no deja manipular directamente el backend por ende no se puede crear la pagina/aplicacion directamente desde un prompt, se debe crear por si mismo un backend en algun editor de codigo o con otro prompt
