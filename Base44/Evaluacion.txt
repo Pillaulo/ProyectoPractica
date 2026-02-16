@@ -1,1 +1,0 @@
-Base44 no permite manipular backend desde el plan gratis por ende no se puede ingresar la key para ver el funcionamiento
