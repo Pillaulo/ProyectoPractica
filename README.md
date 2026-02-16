@@ -1,149 +1,216 @@
-# Cuentos Infantiles – Lectura progresiva (M0)
+📘 README
+Proyecto: Evaluación Crítica de Vibe Coding
+🎯 Propósito del Repositorio
 
-Aplicación web para apoyar la lectura infantil mediante cuentos personalizados con lectura progresiva. Sin persistencia, usando la API de Groq.
+Este repositorio centraliza todos los artefactos generados durante la evaluación crítica del enfoque Vibe Coding, entendiendo este como el uso de herramientas basadas en modelos de lenguaje para generar software mediante prompts estructurados.
 
----
+El objetivo no es solo utilizar herramientas, sino analizar:
 
-## Estructura del proyecto
+Cuándo aportan valor real.
 
-```
-Cursor/
-├── backend/
-│   ├── server.js          # Servidor Express + proxy Groq
-│   ├── package.json
-│   └── .env.example
-├── frontend/
-│   ├── src/
-│   │   ├── main.jsx
-│   │   ├── App.jsx
-│   │   ├── Formulario.jsx
-│   │   ├── VistaLectura.jsx
-│   │   ├── App.css
-│   │   └── index.css
-│   ├── index.html
-│   ├── vite.config.js
-│   └── package.json
-└── README.md
-```
+Cuándo no son suficientes.
 
----
+Qué riesgos implican.
 
-## Requisitos previos
+Cómo influye el diseño del prompt.
 
-- Node.js 18+ (o 20+ recomendado)
-- Cuenta en [Groq](https://console.groq.com/) para obtener una API key
+Cómo impacta la estructura del pipeline en el resultado final.
 
----
+Este repositorio documenta tanto los productos generados como el proceso utilizado para generarlos.
 
-## Instrucciones paso a paso
+🧠 Enfoque Metodológico
 
-### 1. Configurar la variable de entorno GROQ_API_KEY
+La evaluación se estructura en cuatro dimensiones principales:
 
-La API key **no debe estar hardcodeada**. Debe leerse exclusivamente de la variable de entorno `GROQ_API_KEY`.
+Casos de prueba con complejidad creciente
 
-**Windows (PowerShell):**
-```powershell
-$env:GROQ_API_KEY = "gsk_tu_api_key_aqui"
-```
+Diseño de pipelines de vibe coding
 
-**Windows (CMD):**
-```cmd
-set GROQ_API_KEY=gsk_tu_api_key_aqui
-```
+Comparación de herramientas
 
-**Linux / macOS:**
-```bash
-export GROQ_API_KEY=gsk_tu_api_key_aqui
-```
+Definición de métricas de desempeño
 
-**Opción con archivo .env (recomendado para desarrollo):**
-```bash
-# En la carpeta backend/
-cp .env.example .env
-# Edita .env y añade tu API key
-```
+🧩 1. Casos de Prueba (Benchmark)
 
----
+Se definieron escenarios progresivos para evaluar comportamiento, límites y calidad del código generado.
 
-### 2. Instalar dependencias y arrancar el backend
+🔹 Caso simple
 
-```bash
-cd backend
-npm install
-# Asegúrate de tener GROQ_API_KEY definida (o archivo .env)
-npm run dev
-```
+Aplicación web simple.
 
-El servidor quedará en `http://localhost:3001`.
+Solo frontend (deseable).
 
----
+Sin persistencia.
 
-### 3. Instalar dependencias y arrancar el frontend
+Navegación básica.
 
-En otra terminal:
+Opcional: consumo de API simple (ej. Groq).
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+🔹 Caso intermedio (POR DEFINIR)
 
-El frontend quedará en `http://localhost:5173` con proxy hacia el backend.
+Separación explícita frontend/backend.
 
----
+Arquitectura en capas (presentación + lógica).
 
-### 4. Usar la aplicación
+Formularios.
 
-1. Abre `http://localhost:5173` en el navegador.
-2. Completa el formulario (nombre, edad, tema, personaje, vocabulario).
-3. Haz clic en **Generar cuento**.
-4. Lee el cuento en modo Frases o Párrafos con los botones Anterior/Siguiente.
-5. Usa **Reiniciar** para volver al formulario.
+Uso de base de datos.
 
----
+API REST básica.
 
-## Ejemplo de request con curl
+🔹 Caso avanzado (POR DEFINIR)
 
-```bash
-curl -X POST http://localhost:3001/api/story \
-  -H "Content-Type: application/json" \
-  -d "{\"nombre_nino\": \"Lucía\", \"edad\": 6, \"tema\": \"La amistad con los animales\", \"personaje_principal\": \"Un dragón amigable\", \"vocabulario\": \"simple\"}"
-```
+Arquitectura más estructurada (ej. hexagonal).
 
-**Respuesta esperada (ejemplo):**
-```json
-{
-  "titulo": "Lucía y el dragón amigable",
-  "frases": [
-    "Lucía vivía en un pueblo pequeño.",
-    "Un día conoció a un dragón muy especial.",
-    "El dragón tenía escamas de color turquesa.",
-    "..."
-  ],
-  "parrafos": [
-    "Lucía vivía en un pueblo pequeño. Un día conoció a un dragón muy especial. El dragón tenía escamas de color turquesa.",
-    "..."
-  ]
-}
-```
+Separación clara de dominio.
 
----
+Adaptadores.
 
-## Endpoints del backend
+Control de dependencias.
 
-| Método | Ruta           | Descripción                         |
-|--------|----------------|-------------------------------------|
-| POST   | /api/story     | Genera un cuento personalizado      |
-| GET    | /api/health    | Estado del servidor y GROQ_API_KEY  |
+Servicios externos.
 
----
+Validaciones cruzadas.
 
-## Supuestos y limitaciones
+Cada caso incluye:
 
-- **Sin persistencia**: Los cuentos no se guardan. Al recargar la página se pierde el estado.
-- **Sin base de datos, sesiones ni autenticación**.
-- **GROQ_API_KEY obligatoria**: Sin ella, el endpoint `/api/story` devuelve error 500.
-- **Límites de Groq**: Dependen del plan de la cuenta (rate limits, uso diario).
-- **Modelo fijo**: Se usa `llama-3.3-70b-versatile`. Si Groq cambia el nombre, hay que actualizar en `server.js`.
-- **Idioma**: El cuento se genera en español según el prompt.
-- **Normalización**: Si Groq devuelve menos frases/párrafos de los pedidos, el backend intenta normalizar la respuesta.
+Prompt utilizado.
+
+Herramienta empleada.
+
+Pipeline aplicado.
+
+Resultado generado.
+
+Evaluación crítica.
+
+🔄 2. Pipelines de Vibe Coding
+
+Se evaluaron distintos niveles de estructuración del proceso.
+
+🟢 Pipeline Mínimo
+
+Un solo prompt genera toda la solución.
+
+Ejemplo:
+
+Genera una aplicación web que...
+
+🟡 Pipeline Intermedio
+
+PRD → Arquitectura → Implementación → Integración
+
+Separación explícita de responsabilidades.
+
+🔴 Pipeline Estructurado
+
+Definición funcional
+
+Definición arquitectónica
+
+Generación por módulos
+
+Validación iterativa
+
+Refactorización asistida
+
+Integración final
+
+Aquí se evalúa cómo mejora (o no) la calidad del resultado cuando el proceso está más controlado.
+
+🛠️ Herramientas Evaluadas
+
+Se comparan escenarios donde:
+
+Una sola herramienta cubre todo el pipeline.
+
+Cada etapa utiliza una herramienta distinta.
+
+Herramientas consideradas:
+
+Claude Code
+
+Cursor
+
+Lovable
+
+Base44
+
+Google Antigravity
+
+Supabase
+
+Gemini
+
+GPT
+
+📊 Métricas de Evaluación
+
+Se utilizan métricas simples pero objetivas:
+
+Funcionales
+
+¿Compila?
+
+¿Ejecuta?
+
+¿Cumple los requisitos?
+
+¿Respeta la arquitectura solicitada?
+
+Errores recurrentes
+
+Necesidad de correcciones manuales
+
+📁 Estructura del Repositorio
+main
+├── README.md
+
+Branches
+simple-claude
+simple-cursor
+simple-gemini
+simple-lovable
+...
+
+
+Cada carpeta contiene:
+
+Respuesta generada
+
+Código final
+
+Foto de la interfaz
+
+Observaciones críticas
+
+🔍 Criterios de Análisis Crítico
+
+El foco del estudio es comprender:
+
+Qué tan determinante es el prompt.
+
+Si el modelo respeta restricciones arquitectónicas.
+
+Qué tan reproducible es el resultado.
+
+Si existe ilusión de completitud.
+
+Cuánto trabajo humano real sigue siendo necesario.
+
+⚠️ Consideraciones
+
+Este repositorio no busca optimizar productividad, sino evaluar críticamente:
+
+Alcances reales del vibe coding.
+
+Riesgos técnicos.
+
+Riesgos arquitectónicos.
+
+Limitaciones estructurales del enfoque.
+
+📌 Estado del Proyecto
+
+En desarrollo iterativo.
+Se agregan nuevos casos, herramientas y comparaciones progresivamente.
