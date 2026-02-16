@@ -1,0 +1,28 @@
+:root {
+  --color-bg: #fef9f0;
+  --color-card: #ffffff;
+  --color-primary: #e8a87c;
+  --color-primary-dark: #c38d6a;
+  --color-accent: #41b3a3;
+  --color-accent-hover: #38a092;
+  --color-text: #2d3436;
+  --color-text-muted: #636e72;
+  --color-error: #e74c3c;
+  --font-title: 'Fredoka', sans-serif;
+  --font-body: 'Nunito', sans-serif;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
