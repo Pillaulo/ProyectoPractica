@@ -1,216 +1,176 @@
-📘 README
-Proyecto: Evaluación Crítica de Vibe Coding
-🎯 Propósito del Repositorio
+# Cuentos mágicos - Lectura infantil progresiva
 
-Este repositorio centraliza todos los artefactos generados durante la evaluación crítica del enfoque Vibe Coding, entendiendo este como el uso de herramientas basadas en modelos de lenguaje para generar software mediante prompts estructurados.
+Aplicación web para apoyar la lectura infantil mediante cuentos personalizados generados con IA (Groq), con lectura progresiva por frases o párrafos.
 
-El objetivo no es solo utilizar herramientas, sino analizar:
+## Estructura del proyecto
 
-Cuándo aportan valor real.
+```
+├── frontend/          # React + Vite
+│   ├── src/
+│   │   ├── components/   # Presentación (UI)
+│   │   ├── pages/       # Páginas
+│   │   ├── state/       # Lógica de aplicación (hooks)
+│   │   └── services/    # Infraestructura HTTP
+│   └── package.json
+├── backend/            # Node.js + Express
+│   ├── src/
+│   │   ├── routes/      # Rutas
+│   │   ├── controllers/ # Controllers
+│   │   ├── services/    # Lógica de negocio
+│   │   ├── providers/   # Adapter Groq
+│   │   ├── validators/  # Validación (Zod)
+│   │   ├── types/       # DTOs
+│   │   ├── repositories/ # Acceso a datos
+│   │   └── infrastructure/ # BD, init
+│   └── package.json
+└── README.md
+```
 
-Cuándo no son suficientes.
+## Requisitos previos
 
-Qué riesgos implican.
+- Node.js 18+
+- Cuenta en [Groq](https://console.groq.com/) para obtener una API key
 
-Cómo influye el diseño del prompt.
+## Pasos para ejecutar localmente
 
-Cómo impacta la estructura del pipeline en el resultado final.
+### 1. Configurar el backend
 
-Este repositorio documenta tanto los productos generados como el proceso utilizado para generarlos.
+```bash
+cd backend
+npm install
+```
 
-🧠 Enfoque Metodológico
+Crear archivo `.env` a partir del ejemplo:
 
-La evaluación se estructura en cuatro dimensiones principales:
+```bash
+# Windows
+copy .env.example .env
 
-Casos de prueba con complejidad creciente
+# Linux / macOS
+cp .env.example .env
+```
 
-Diseño de pipelines de vibe coding
+Editar `.env` y colocar tu API key de Groq:
 
-Comparación de herramientas
+```
+GROQ_API_KEY=gsk_tu_clave_aqui
+DATABASE_URL=./data/stories.db
+```
 
-Definición de métricas de desempeño
+### 2. Iniciar el backend
 
-🧩 1. Casos de Prueba (Benchmark)
+```bash
+npm run dev
+```
 
-Se definieron escenarios progresivos para evaluar comportamiento, límites y calidad del código generado.
+El backend estará disponible en `http://localhost:3000`.
 
-🔹 Caso simple
+### 3. Configurar e iniciar el frontend
 
-Aplicación web simple.
+En otra terminal:
 
-Solo frontend (deseable).
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-Sin persistencia.
+El frontend estará disponible en `http://localhost:5173`.
 
-Navegación básica.
+### 4. Probar la aplicación
 
-Opcional: consumo de API simple (ej. Groq).
+Abrir el navegador en `http://localhost:5173` y completar el formulario para generar un cuento.
 
-🔹 Caso intermedio (POR DEFINIR)
+---
 
-Separación explícita frontend/backend.
+## Ejemplos curl
 
-Arquitectura en capas (presentación + lógica).
+### Generar cuento (POST /api/story)
 
-Formularios.
+**Bash / curl:**
+```bash
+curl -X POST http://localhost:3000/api/story \
+  -H "Content-Type: application/json" \
+  -d "{\"nombre_nino\":\"Luna\",\"edad\":6,\"tema\":\"el bosque mágico\",\"personaje_principal\":\"un zorro curioso\",\"vocabulario\":\"simple\"}"
+```
 
-Uso de base de datos.
+**PowerShell:**
+```powershell
+Invoke-RestMethod -Uri "http://localhost:3000/api/story" -Method Post -ContentType "application/json" -Body '{"nombre_nino":"Luna","edad":6,"tema":"el bosque mágico","personaje_principal":"un zorro curioso","vocabulario":"simple"}'
+```
 
-API REST básica.
-
-🔹 Caso avanzado (POR DEFINIR)
-
-Arquitectura más estructurada (ej. hexagonal).
-
-Separación clara de dominio.
-
-Adaptadores.
-
-Control de dependencias.
-
-Servicios externos.
-
-Validaciones cruzadas.
-
-Cada caso incluye:
-
-Prompt utilizado.
-
-Herramienta empleada.
-
-Pipeline aplicado.
-
-Resultado generado.
-
-Evaluación crítica.
-
-🔄 2. Pipelines de Vibe Coding
-
-Se evaluaron distintos niveles de estructuración del proceso.
-
-🟢 Pipeline Mínimo
-
-Un solo prompt genera toda la solución.
-
-Ejemplo:
-
-Genera una aplicación web que...
-
-🟡 Pipeline Intermedio
-
-PRD → Arquitectura → Implementación → Integración
-
-Separación explícita de responsabilidades.
-
-🔴 Pipeline Estructurado
-
-Definición funcional
-
-Definición arquitectónica
-
-Generación por módulos
-
-Validación iterativa
-
-Refactorización asistida
-
-Integración final
-
-Aquí se evalúa cómo mejora (o no) la calidad del resultado cuando el proceso está más controlado.
-
-🛠️ Herramientas Evaluadas
-
-Se comparan escenarios donde:
-
-Una sola herramienta cubre todo el pipeline.
-
-Cada etapa utiliza una herramienta distinta.
-
-Herramientas consideradas:
-
-Claude Code
-
-Cursor
-
-Lovable
-
-Base44
-
-Google Antigravity
-
-Supabase
-
-Gemini
-
-GPT
-
-📊 Métricas de Evaluación
-
-Se utilizan métricas simples pero objetivas:
-
-Funcionales
-
-¿Compila?
-
-¿Ejecuta?
-
-¿Cumple los requisitos?
-
-¿Respeta la arquitectura solicitada?
-
-Errores recurrentes
-
-Necesidad de correcciones manuales
-
-📁 Estructura del Repositorio
-main
-├── README.md
-
-Branches
-simple-claude
-simple-cursor
-simple-gemini
-simple-lovable
-...
-
-
-Cada carpeta contiene:
-
-Respuesta generada
-
-Código final
-
-Foto de la interfaz
-
-Observaciones críticas
-
-🔍 Criterios de Análisis Crítico
-
-El foco del estudio es comprender:
-
-Qué tan determinante es el prompt.
-
-Si el modelo respeta restricciones arquitectónicas.
-
-Qué tan reproducible es el resultado.
-
-Si existe ilusión de completitud.
-
-Cuánto trabajo humano real sigue siendo necesario.
-
-⚠️ Consideraciones
-
-Este repositorio no busca optimizar productividad, sino evaluar críticamente:
-
-Alcances reales del vibe coding.
-
-Riesgos técnicos.
-
-Riesgos arquitectónicos.
-
-Limitaciones estructurales del enfoque.
-
-📌 Estado del Proyecto
-
-En desarrollo iterativo.
-Se agregan nuevos casos, herramientas y comparaciones progresivamente.
+Respuesta esperada:
+
+```json
+{
+  "titulo": "El zorro curioso en el bosque mágico",
+  "frases": ["Había una vez un zorro llamado Luna.", "..."],
+  "parrafos": ["Había una vez un zorro llamado Luna. Vivía en un bosque muy especial...", "..."]
+}
+```
+
+### Listar sesiones (GET /api/sessions)
+
+```bash
+curl http://localhost:3000/api/sessions
+# PowerShell: Invoke-RestMethod http://localhost:3000/api/sessions
+```
+
+Respuesta esperada:
+
+```json
+[
+  {
+    "id": 1,
+    "fecha": "2025-02-26 12:00:00",
+    "nombre_nino": "Luna",
+    "tema": "el bosque mágico",
+    "titulo": "El zorro curioso en el bosque mágico"
+  }
+]
+```
+
+### Detalle de sesión (GET /api/sessions/:id)
+
+```bash
+curl http://localhost:3000/api/sessions/1
+```
+
+---
+
+## Configuración CORS
+
+El backend usa `cors({ origin: true })`, permitiendo peticiones desde cualquier origen durante desarrollo. En producción se recomienda restringir el origen.
+
+---
+
+## Supuestos y limitaciones
+
+| Supuesto / limitación | Descripción |
+|----------------------|-------------|
+| Sin autenticación | No hay usuarios ni login. El historial es global. |
+| Estado en memoria (frontend) | Al recargar la página se pierde el cuento actual; el historial persiste en BD. |
+| Modelo Groq | Se usa `llama-3.3-70b-versatile`. Si cambia, actualizar `backend/src/providers/GroqProvider.ts`. |
+| SQLite local (sql.js) | Por defecto la BD se crea en `backend/data/stories.db`. Usa sql.js (sin compilación nativa) para compatibilidad multiplataforma. |
+| Idioma | El prompt está en español para cuentos en español. |
+| Reintentos | Si Groq devuelve JSON inválido, se reintenta 1 vez antes de devolver 502. |
+
+---
+
+## Checklist de cumplimiento
+
+- [x] Separación frontend/backend
+- [x] Capas: Presentación, Lógica, Infraestructura (en ambos)
+- [x] GROQ_API_KEY solo en backend, desde variable de entorno
+- [x] Frontend sin accesso a la API key
+- [x] Validación de inputs (edad 5–9, strings no vacíos)
+- [x] Respuesta normalizada JSON: titulo, frases, parrafos
+- [x] Persistencia SQLite para historial
+- [x] GET /api/sessions y GET /api/sessions/:id
+- [x] Vista de lectura: modo Frases/Párrafos, Anterior/Siguiente, Paso X de N, Reiniciar
+- [x] Historial en frontend con título y fecha
+- [x] Paleta: #FF6B6B, #4D96FF, #FFD93D, #F7F8FC
+- [x] Tipografía grande, botones redondeados, cards
+- [x] Repository para acceso a datos
+- [x] .env.example con GROQ_API_KEY y DATABASE_URL
+- [x] CORS configurado
