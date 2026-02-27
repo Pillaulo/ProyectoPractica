@@ -1,216 +1,137 @@
-📘 README
-Proyecto: Evaluación Crítica de Vibe Coding
-🎯 Propósito del Repositorio
+# Lectura Infantil - Monorepo M1
 
-Este repositorio centraliza todos los artefactos generados durante la evaluación crítica del enfoque Vibe Coding, entendiendo este como el uso de herramientas basadas en modelos de lenguaje para generar software mediante prompts estructurados.
+Aplicacion full-stack para generar cuentos infantiles personalizados y leerlos de forma progresiva (frases/parrafos), con historial persistido en SQLite.
 
-El objetivo no es solo utilizar herramientas, sino analizar:
+## Estructura del monorepo
 
-Cuándo aportan valor real.
+```text
+/
+  frontend/   # React + Vite
+  backend/    # Node.js + Express + SQLite + Groq
+```
 
-Cuándo no son suficientes.
+## Capas y responsabilidades
 
-Qué riesgos implican.
+### Frontend
 
-Cómo influye el diseño del prompt.
+- `frontend/src/components` + `frontend/src/pages` -> **Presentacion** (UI y eventos)
+- `frontend/src/state` -> **Logica de aplicacion** (modo de lectura, indice, reinicio)
+- `frontend/src/services` -> **Infraestructura** HTTP (cliente API y llamadas)
 
-Cómo impacta la estructura del pipeline en el resultado final.
+### Backend
 
-Este repositorio documenta tanto los productos generados como el proceso utilizado para generarlos.
+- `backend/src/routes` + `backend/src/controllers` -> **Presentacion/API**
+- `backend/src/services` -> **Logica de aplicacion**
+- `backend/src/providers` -> **Adapter Groq**
+- `backend/src/validators` -> **Validacion**
+- `backend/src/types` -> **DTO/contrato**
+- `backend/src/repositories` -> **Data access layer (SQLite)**
+- `backend/src/infrastructure/db` -> **Infraestructura de BD**
 
-🧠 Enfoque Metodológico
+## Variables de entorno
 
-La evaluación se estructura en cuatro dimensiones principales:
+En `backend/.env` (crear copiando `backend/.env.example`):
 
-Casos de prueba con complejidad creciente
+```env
+PORT=3000
+FRONTEND_ORIGIN=http://localhost:5173,http://localhost:5174
+GROQ_API_KEY=tu_api_key_de_groq
+DATABASE_URL=file:./data/story_sessions.db
+```
 
-Diseño de pipelines de vibe coding
+Reglas cumplidas:
 
-Comparación de herramientas
+- La API key **no** esta hardcodeada.
+- Se usa **solo** `GROQ_API_KEY` en backend.
+- El frontend nunca recibe ni conoce la key.
 
-Definición de métricas de desempeño
+## Ejecucion local paso a paso
 
-🧩 1. Casos de Prueba (Benchmark)
+1. Instalar dependencias:
+   - `cd backend && npm install`
+   - `cd ../frontend && npm install`
+2. Configurar backend:
+   - Copiar `backend/.env.example` a `backend/.env`
+   - Colocar valor real de `GROQ_API_KEY`
+3. Levantar backend:
+   - `cd backend`
+   - `npm run dev`
+4. Levantar frontend:
+   - `cd frontend`
+   - `npm run dev`
+5. Abrir navegador en:
+   - `http://localhost:5173` o el puerto que reporte Vite (ej. `5174`)
 
-Se definieron escenarios progresivos para evaluar comportamiento, límites y calidad del código generado.
+## Endpoints
 
-🔹 Caso simple
+- `POST /api/story`
+- `GET /api/sessions`
+- `GET /api/sessions/:id`
 
-Aplicación web simple.
+## CORS
 
-Solo frontend (deseable).
+Configurado en backend con `FRONTEND_ORIGIN` (lista separada por comas).
 
-Sin persistencia.
+## Ejemplos curl
 
-Navegación básica.
+### Generar cuento
 
-Opcional: consumo de API simple (ej. Groq).
+```bash
+curl -X POST http://localhost:3000/api/story \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre_nino":"Luna",
+    "edad":7,
+    "tema":"amistad en el bosque",
+    "personaje_principal":"zorro curioso",
+    "vocabulario":"simple"
+  }'
+```
 
-🔹 Caso intermedio (POR DEFINIR)
+### Listar historial
 
-Separación explícita frontend/backend.
+```bash
+curl http://localhost:3000/api/sessions
+```
 
-Arquitectura en capas (presentación + lógica).
+### Obtener sesion por id
 
-Formularios.
-
-Uso de base de datos.
-
-API REST básica.
-
-🔹 Caso avanzado (POR DEFINIR)
-
-Arquitectura más estructurada (ej. hexagonal).
-
-Separación clara de dominio.
-
-Adaptadores.
-
-Control de dependencias.
-
-Servicios externos.
-
-Validaciones cruzadas.
-
-Cada caso incluye:
-
-Prompt utilizado.
-
-Herramienta empleada.
-
-Pipeline aplicado.
-
-Resultado generado.
-
-Evaluación crítica.
-
-🔄 2. Pipelines de Vibe Coding
-
-Se evaluaron distintos niveles de estructuración del proceso.
-
-🟢 Pipeline Mínimo
-
-Un solo prompt genera toda la solución.
-
-Ejemplo:
-
-Genera una aplicación web que...
-
-🟡 Pipeline Intermedio
-
-PRD → Arquitectura → Implementación → Integración
-
-Separación explícita de responsabilidades.
-
-🔴 Pipeline Estructurado
-
-Definición funcional
-
-Definición arquitectónica
-
-Generación por módulos
-
-Validación iterativa
-
-Refactorización asistida
-
-Integración final
-
-Aquí se evalúa cómo mejora (o no) la calidad del resultado cuando el proceso está más controlado.
-
-🛠️ Herramientas Evaluadas
-
-Se comparan escenarios donde:
-
-Una sola herramienta cubre todo el pipeline.
-
-Cada etapa utiliza una herramienta distinta.
-
-Herramientas consideradas:
-
-Claude Code
-
-Cursor
-
-Lovable
-
-Base44
-
-Google Antigravity
-
-Supabase
-
-Gemini
-
-GPT
-
-📊 Métricas de Evaluación
-
-Se utilizan métricas simples pero objetivas:
-
-Funcionales
-
-¿Compila?
-
-¿Ejecuta?
-
-¿Cumple los requisitos?
-
-¿Respeta la arquitectura solicitada?
-
-Errores recurrentes
-
-Necesidad de correcciones manuales
-
-📁 Estructura del Repositorio
-main
-├── README.md
-
-Branches
-simple-claude
-simple-cursor
-simple-gemini
-simple-lovable
-...
-
-
-Cada carpeta contiene:
-
-Respuesta generada
-
-Código final
-
-Foto de la interfaz
-
-Observaciones críticas
-
-🔍 Criterios de Análisis Crítico
-
-El foco del estudio es comprender:
-
-Qué tan determinante es el prompt.
-
-Si el modelo respeta restricciones arquitectónicas.
-
-Qué tan reproducible es el resultado.
-
-Si existe ilusión de completitud.
-
-Cuánto trabajo humano real sigue siendo necesario.
-
-⚠️ Consideraciones
-
-Este repositorio no busca optimizar productividad, sino evaluar críticamente:
-
-Alcances reales del vibe coding.
-
-Riesgos técnicos.
-
-Riesgos arquitectónicos.
-
-Limitaciones estructurales del enfoque.
-
-📌 Estado del Proyecto
-
-En desarrollo iterativo.
-Se agregan nuevos casos, herramientas y comparaciones progresivamente.
+```bash
+curl http://localhost:3000/api/sessions/1
+```
+
+## Manejo de errores
+
+Formato estandar:
+
+```json
+{ "error": { "code": "VALIDATION_ERROR", "message": "..." } }
+```
+
+Codigos:
+
+- `400` -> validacion
+- `502` -> fallo Groq/red o respuesta no parseable en 2 intentos
+- `500` -> error inesperado
+
+## Supuestos y limitaciones
+
+- No hay autenticacion, usuarios ni login (por requisito).
+- Persistencia limitada a historial de cuentos en `story_sessions`.
+- Se guarda contenido final del cuento (titulo, frases, parrafos), no prompts completos.
+- El frontend mantiene estado de lectura en memoria; al recargar se pierde.
+- Si Groq devuelve JSON invalido dos veces, se responde `502`.
+
+## Checklist de cumplimiento
+
+- [x] Monorepo con `/frontend` y `/backend`
+- [x] Separacion estricta frontend/backend
+- [x] Capas frontend: presentacion + estado + servicios HTTP
+- [x] Capas backend: routes/controller, service, provider, validator, DTO, repository
+- [x] `GROQ_API_KEY` solo en variable de entorno backend
+- [x] Endpoint `POST /api/story` con validacion y salida normalizada
+- [x] Historial persistido automaticamente en BD
+- [x] Endpoints `GET /api/sessions` y `GET /api/sessions/:id`
+- [x] DB configurada por `DATABASE_URL`
+- [x] UI infantil con paleta solicitada y accesibilidad basica
+- [x] Mensajes de error claros en frontend
