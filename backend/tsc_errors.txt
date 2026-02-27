@@ -1,0 +1,4 @@
+﻿src/controller/sessionController.ts(15,29): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controller/storyController.ts(22,32): error TS2339: Property 'errors' does not exist on type 'ZodError<unknown>'.
+src/controller/storyController.ts(22,43): error TS7006: Parameter 'e' implicitly has an 'any' type.
