@@ -1,0 +1,55 @@
+:root {
+  --color-primary: #FF6B6B;
+  --color-secondary: #4D96FF;
+  --color-accent: #FFD93D;
+  --color-bg: #F7F8FC;
+  --color-text: #1F2937;
+  --color-muted: #6B7280;
+  --color-surface: #FFFFFF;
+  --color-border: rgba(31, 41, 55, 0.15);
+
+  --radius-lg: 18px;
+  --radius-md: 14px;
+
+  --shadow-card: 0 10px 30px rgba(31, 41, 55, 0.10);
+
+  --focus-ring: 0 0 0 4px rgba(77, 150, 255, 0.35);
+
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(900px 500px at 20% 0%, rgba(255, 107, 107, 0.18), transparent 60%),
+              radial-gradient(900px 500px at 80% 20%, rgba(77, 150, 255, 0.18), transparent 60%),
+              var(--color-bg);
+  color: var(--color-text);
+  font-size: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+}
+
+button, input, select {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(255, 217, 61, 0.65);
+}
+

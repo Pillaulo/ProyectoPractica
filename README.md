@@ -1,216 +1,95 @@
-📘 README
-Proyecto: Evaluación Crítica de Vibe Coding
-🎯 Propósito del Repositorio
+## Cuentos personalizados con lectura progresiva (M1)
+
+Monorepo con:
+- `backend/`: API Node.js + Express + SQLite (historial)
+- `frontend/`: React + Vite (UI infantil + lectura progresiva)
+
+### Requisitos
+- Node.js 18+ (recomendado 20+)
+
+### 1) Backend (API)
+En una terminal:
+
+```bash
+cd ".\\backend"
+# PowerShell:
+Copy-Item .env.example .env
+# (alternativa Git Bash): cp .env.example .env
+npm install
+npm run dev
+```
+
+Configura en `backend/.env`:
+- `GROQ_API_KEY`: tu API key de Groq (**solo backend**)
+- `DATABASE_URL`: ruta SQLite. Ejemplo: `sqlite:./data/story.db`
+
+El backend corre en `http://localhost:3001`.
+
+### 2) Frontend (UI)
+En otra terminal:
+
+```bash
+cd ".\\frontend"
+npm install
+npm run dev
+```
+
+El frontend corre en `http://localhost:5173` y usa proxy a `/api` hacia el backend.
+
+### Ejemplos cURL
+
+Generar cuento:
+
+```bash
+curl -X POST "http://localhost:3001/api/story" ^
+  -H "Content-Type: application/json" ^
+  -d "{\"nombre_nino\":\"Luna\",\"edad\":7,\"tema\":\"amistad\",\"personaje_principal\":\"un dragón\",\"vocabulario\":\"simple\"}"
+```
+
+Listar sesiones:
+
+```bash
+curl "http://localhost:3001/api/sessions"
+```
+
+Detalle de sesión:
+
+```bash
+curl "http://localhost:3001/api/sessions/1"
+```
+
+### Supuestos y limitaciones
+- Persistencia **solo** para historial de cuentos (tabla `story_sessions`).
+- Sin usuarios, login ni autenticación.
+- El frontend **no** construye prompts ni llama a Groq.
+- Si Groq devuelve JSON inválido, el backend reintenta 1 vez; si falla, responde 502.
+
+### Estructura y capas (responsabilidades)
+
+**Frontend (`frontend/src/`)**
+- **Presentación**: `pages/` y `components/` (UI + eventos, sin prompts, sin Groq, sin normalización de IA).
+- **Lógica de aplicación**: `state/` (modo Frases/Párrafos, índice, reiniciar).
+- **Infraestructura**: `services/` (HTTP hacia `/api`).
+
+**Backend (`backend/src/`)**
+- **Routes/Controller**: `routes/`, `controllers/` (HTTP, validación y delegación).
+- **Validator**: `validators/` (Zod: trimming, rangos, requeridos).
+- **Service**: `services/` (prompt + parse/validación del JSON + reintento 1 vez + persistencia vía repository).
+- **Provider/Adapter**: `providers/groq/` (llamada HTTP a Groq usando `GROQ_API_KEY`).
+- **Repository (Data Access Layer)**: `repositories/` (SQLite: tabla `story_sessions`).
+- **Infraestructura**: `infrastructure/db/` (conexión SQLite a partir de `DATABASE_URL`).
+
+### Formato estándar de error (API)
+Siempre:
+```json
+{ "error": { "code": "VALIDATION_ERROR", "message": "..." } }
+```
+
+### Checklist de cumplimiento (alto nivel)
+- Frontend React+Vite con capas (`pages/components`, `state`, `services`)
+- Backend Express con capas (routes/controller/service/provider/validator/repository)
+- `GROQ_API_KEY` **solo** en backend vía variable de entorno
+- `DATABASE_URL` para SQLite
+- Endpoints: `POST /api/story`, `GET /api/sessions`, `GET /api/sessions/:id`
+- Manejo de errores estándar (400/502/500)
 
-Este repositorio centraliza todos los artefactos generados durante la evaluación crítica del enfoque Vibe Coding, entendiendo este como el uso de herramientas basadas en modelos de lenguaje para generar software mediante prompts estructurados.
-
-El objetivo no es solo utilizar herramientas, sino analizar:
-
-Cuándo aportan valor real.
-
-Cuándo no son suficientes.
-
-Qué riesgos implican.
-
-Cómo influye el diseño del prompt.
-
-Cómo impacta la estructura del pipeline en el resultado final.
-
-Este repositorio documenta tanto los productos generados como el proceso utilizado para generarlos.
-
-🧠 Enfoque Metodológico
-
-La evaluación se estructura en cuatro dimensiones principales:
-
-Casos de prueba con complejidad creciente
-
-Diseño de pipelines de vibe coding
-
-Comparación de herramientas
-
-Definición de métricas de desempeño
-
-🧩 1. Casos de Prueba (Benchmark)
-
-Se definieron escenarios progresivos para evaluar comportamiento, límites y calidad del código generado.
-
-🔹 Caso simple
-
-Aplicación web simple.
-
-Solo frontend (deseable).
-
-Sin persistencia.
-
-Navegación básica.
-
-Opcional: consumo de API simple (ej. Groq).
-
-🔹 Caso intermedio (POR DEFINIR)
-
-Separación explícita frontend/backend.
-
-Arquitectura en capas (presentación + lógica).
-
-Formularios.
-
-Uso de base de datos.
-
-API REST básica.
-
-🔹 Caso avanzado (POR DEFINIR)
-
-Arquitectura más estructurada (ej. hexagonal).
-
-Separación clara de dominio.
-
-Adaptadores.
-
-Control de dependencias.
-
-Servicios externos.
-
-Validaciones cruzadas.
-
-Cada caso incluye:
-
-Prompt utilizado.
-
-Herramienta empleada.
-
-Pipeline aplicado.
-
-Resultado generado.
-
-Evaluación crítica.
-
-🔄 2. Pipelines de Vibe Coding
-
-Se evaluaron distintos niveles de estructuración del proceso.
-
-🟢 Pipeline Mínimo
-
-Un solo prompt genera toda la solución.
-
-Ejemplo:
-
-Genera una aplicación web que...
-
-🟡 Pipeline Intermedio
-
-PRD → Arquitectura → Implementación → Integración
-
-Separación explícita de responsabilidades.
-
-🔴 Pipeline Estructurado
-
-Definición funcional
-
-Definición arquitectónica
-
-Generación por módulos
-
-Validación iterativa
-
-Refactorización asistida
-
-Integración final
-
-Aquí se evalúa cómo mejora (o no) la calidad del resultado cuando el proceso está más controlado.
-
-🛠️ Herramientas Evaluadas
-
-Se comparan escenarios donde:
-
-Una sola herramienta cubre todo el pipeline.
-
-Cada etapa utiliza una herramienta distinta.
-
-Herramientas consideradas:
-
-Claude Code
-
-Cursor
-
-Lovable
-
-Base44
-
-Google Antigravity
-
-Supabase
-
-Gemini
-
-GPT
-
-📊 Métricas de Evaluación
-
-Se utilizan métricas simples pero objetivas:
-
-Funcionales
-
-¿Compila?
-
-¿Ejecuta?
-
-¿Cumple los requisitos?
-
-¿Respeta la arquitectura solicitada?
-
-Errores recurrentes
-
-Necesidad de correcciones manuales
-
-📁 Estructura del Repositorio
-main
-├── README.md
-
-Branches
-simple-claude
-simple-cursor
-simple-gemini
-simple-lovable
-...
-
-
-Cada carpeta contiene:
-
-Respuesta generada
-
-Código final
-
-Foto de la interfaz
-
-Observaciones críticas
-
-🔍 Criterios de Análisis Crítico
-
-El foco del estudio es comprender:
-
-Qué tan determinante es el prompt.
-
-Si el modelo respeta restricciones arquitectónicas.
-
-Qué tan reproducible es el resultado.
-
-Si existe ilusión de completitud.
-
-Cuánto trabajo humano real sigue siendo necesario.
-
-⚠️ Consideraciones
-
-Este repositorio no busca optimizar productividad, sino evaluar críticamente:
-
-Alcances reales del vibe coding.
-
-Riesgos técnicos.
-
-Riesgos arquitectónicos.
-
-Limitaciones estructurales del enfoque.
-
-📌 Estado del Proyecto
-
-En desarrollo iterativo.
-Se agregan nuevos casos, herramientas y comparaciones progresivamente.
