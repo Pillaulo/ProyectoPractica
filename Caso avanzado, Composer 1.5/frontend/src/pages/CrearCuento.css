@@ -1,0 +1,91 @@
+.crear-cuento h1 {
+  margin-bottom: 1.5rem;
+}
+
+.crear-cuento-add {
+  margin-bottom: 1.5rem;
+}
+
+.form-perfil label {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.form-perfil label span,
+.form-perfil .themes > span {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.form-perfil input[type="text"],
+.form-perfil select {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: var(--radius);
+  font-family: inherit;
+}
+
+.form-perfil input:focus,
+.form-perfil select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.themes {
+  margin-bottom: 1.25rem;
+}
+
+.themes-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.theme-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.75rem;
+  background: var(--color-bg);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.theme-chip input {
+  display: none;
+}
+
+.theme-chip:has(input:checked) {
+  background: rgba(123, 158, 137, 0.2);
+  border: 2px solid var(--color-primary);
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.profiles-list h2 {
+  margin-bottom: 1rem;
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.profile-meta {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}

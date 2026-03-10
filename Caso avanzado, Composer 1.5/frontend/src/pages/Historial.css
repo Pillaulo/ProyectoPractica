@@ -1,0 +1,49 @@
+.historial h1 {
+  margin-bottom: 1.5rem;
+}
+
+.historial-select {
+  margin-bottom: 1.5rem;
+}
+
+.historial-select label {
+  display: block;
+}
+
+.historial-select span {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.historial-select select {
+  width: 100%;
+  max-width: 280px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: var(--radius);
+  font-family: inherit;
+}
+
+.historial-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.historial-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.historial-meta {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}

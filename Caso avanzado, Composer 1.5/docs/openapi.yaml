@@ -1,0 +1,546 @@
+openapi: 3.0.3
+info:
+  title: CuentoMágico API
+  description: |
+    API REST para la aplicación de cuentos personalizados con lectura progresiva.
+
+    ## Convenciones
+    - Todos los IDs son UUIDs v4.
+    - Las fechas siguen formato ISO 8601 (`2026-03-02T14:30:00Z`).
+    - Los errores siguen un formato uniforme (ver schema `Error`).
+    - Los enums se envían como strings en UPPER_SNAKE_CASE.
+
+    ## Recursos principales
+    - **Profiles**: Perfiles de lectores infantiles.
+    - **Stories**: Cuentos personalizados generados por IA.
+    - **Fragments**: Segmentos de lectura progresiva de cada cuento.
+
+    ## Nota sobre POST /sessions
+    No se incluye un endpoint de sesiones. La autenticación y el manejo de sesiones
+    están fuera del alcance del MVP (ver PRD §7). Los perfiles actúan como contexto
+    de usuario sin requerir login. Si en el futuro se añade autenticación,
+    se incorporará como un adaptador independiente sin modificar dominio ni aplicación.
+  version: 1.0.0
+  contact:
+    name: Equipo CuentoMágico
+
+servers:
+  - url: http://localhost:8000
+    description: Servidor de desarrollo
+
+tags:
+  - name: Health
+    description: Estado del servicio
+  - name: Profiles
+    description: Gestión de perfiles de lectores
+  - name: Stories
+    description: Generación y consulta de cuentos
+
+# ──────────────────────────────────────────────
+# PATHS
+# ──────────────────────────────────────────────
+paths:
+
+  # ── Health ──────────────────────────────────
+  /health:
+    get:
+      tags: [Health]
+      summary: Verificar estado del servicio
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Servicio operativo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  version:
+                    type: string
+                    example: "1.0.0"
+                required: [status]
+
+  # ── Profiles ────────────────────────────────
+  /api/profiles:
+    post:
+      tags: [Profiles]
+      summary: Crear un perfil de lector
+      operationId: createProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProfileRequest"
+      responses:
+        "201":
+          description: Perfil creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "400":
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: VALIDATION_ERROR
+                message: "El campo 'name' es obligatorio"
+                details:
+                  field: name
+                  constraint: required
+        "422":
+          description: Entidad no procesable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    get:
+      tags: [Profiles]
+      summary: Listar todos los perfiles
+      operationId: listProfiles
+      responses:
+        "200":
+          description: Lista de perfiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Profile"
+
+  /api/profiles/{profileId}:
+    parameters:
+      - $ref: "#/components/parameters/ProfileId"
+
+    get:
+      tags: [Profiles]
+      summary: Obtener un perfil por ID
+      operationId: getProfile
+      responses:
+        "200":
+          description: Perfil encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "404":
+          description: Perfil no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: NOT_FOUND
+                message: "No se encontró el perfil con el ID proporcionado"
+
+    delete:
+      tags: [Profiles]
+      summary: Eliminar un perfil
+      description: Elimina el perfil y todos sus cuentos asociados.
+      operationId: deleteProfile
+      responses:
+        "204":
+          description: Perfil eliminado exitosamente
+        "404":
+          description: Perfil no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ── Stories ─────────────────────────────────
+  /api/profiles/{profileId}/stories:
+    parameters:
+      - $ref: "#/components/parameters/ProfileId"
+
+    post:
+      tags: [Stories]
+      summary: Generar un cuento personalizado
+      description: |
+        Genera un cuento usando IA, adaptado al perfil del lector.
+        El cuento se fragmenta automáticamente según el nivel lector del perfil.
+        La generación puede tardar varios segundos dependiendo del proveedor LLM.
+      operationId: createStory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStoryRequest"
+      responses:
+        "201":
+          description: Cuento generado y fragmentado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Story"
+        "400":
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: VALIDATION_ERROR
+                message: "El tema proporcionado no es válido"
+                details:
+                  field: theme
+                  constraint: "Debe ser uno de: ANIMALS, FANTASY, ADVENTURE, NATURE, SPACE, FRIENDSHIP, HUMOR"
+        "404":
+          description: Perfil no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "502":
+          description: Error en el proveedor de generación (LLM)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: LLM_ERROR
+                message: "No se pudo generar el cuento. Intente nuevamente."
+        "504":
+          description: Timeout en la generación del cuento
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: LLM_TIMEOUT
+                message: "La generación del cuento excedió el tiempo límite"
+
+    get:
+      tags: [Stories]
+      summary: Listar cuentos de un perfil
+      description: Devuelve todos los cuentos generados para un perfil, sin incluir los fragmentos (solo metadatos).
+      operationId: listStoriesByProfile
+      responses:
+        "200":
+          description: Lista de cuentos del perfil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StorySummary"
+        "404":
+          description: Perfil no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/stories/{storyId}:
+    parameters:
+      - $ref: "#/components/parameters/StoryId"
+
+    get:
+      tags: [Stories]
+      summary: Obtener un cuento completo
+      description: Devuelve el cuento con todos sus fragmentos ordenados, listo para lectura progresiva.
+      operationId: getStory
+      responses:
+        "200":
+          description: Cuento con fragmentos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Story"
+        "404":
+          description: Cuento no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      tags: [Stories]
+      summary: Eliminar un cuento
+      operationId: deleteStory
+      responses:
+        "204":
+          description: Cuento eliminado exitosamente
+        "404":
+          description: Cuento no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/stories/{storyId}/fragments:
+    parameters:
+      - $ref: "#/components/parameters/StoryId"
+
+    get:
+      tags: [Stories]
+      summary: Obtener solo los fragmentos de un cuento
+      description: |
+        Devuelve la lista ordenada de fragmentos para lectura progresiva.
+        Útil cuando el frontend ya tiene los metadatos del cuento y solo necesita
+        los fragmentos para la experiencia de lectura.
+      operationId: getStoryFragments
+      responses:
+        "200":
+          description: Lista de fragmentos ordenados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  story_id:
+                    type: string
+                    format: uuid
+                  total_fragments:
+                    type: integer
+                    minimum: 1
+                    description: Cantidad total de fragmentos
+                  fragments:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Fragment"
+                required: [story_id, total_fragments, fragments]
+        "404":
+          description: Cuento no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+# ──────────────────────────────────────────────
+# COMPONENTS
+# ──────────────────────────────────────────────
+components:
+
+  # ── Parameters ──────────────────────────────
+  parameters:
+    ProfileId:
+      name: profileId
+      in: path
+      required: true
+      description: UUID del perfil de lector
+      schema:
+        type: string
+        format: uuid
+        example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+
+    StoryId:
+      name: storyId
+      in: path
+      required: true
+      description: UUID del cuento
+      schema:
+        type: string
+        format: uuid
+        example: "f9e8d7c6-b5a4-3210-fedc-ba9876543210"
+
+  # ── Schemas ─────────────────────────────────
+  schemas:
+
+    # ── Enums ─────────────────────────────────
+    ReadingLevel:
+      type: string
+      enum: [INITIAL, BASIC, INTERMEDIATE, ADVANCED]
+      description: |
+        Nivel lector del niño:
+        - `INITIAL` (4–5 años): frases muy cortas, vocabulario básico
+        - `BASIC` (6–7 años): frases cortas, vocabulario cotidiano
+        - `INTERMEDIATE` (8–9 años): frases medianas, trama clara
+        - `ADVANCED` (10+ años): párrafos cortos, vocabulario rico
+
+    Theme:
+      type: string
+      enum: [ANIMALS, FANTASY, ADVENTURE, NATURE, SPACE, FRIENDSHIP, HUMOR]
+      description: Tema del cuento
+
+    StoryStatus:
+      type: string
+      enum: [GENERATING, READY, ERROR]
+      description: |
+        Estado del cuento:
+        - `GENERATING`: en proceso de generación (no legible aún)
+        - `READY`: generado y fragmentado, listo para leer
+        - `ERROR`: falló la generación
+
+    # ── Request Bodies ────────────────────────
+    CreateProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Nombre del niño
+          example: "Sofía"
+        reading_level:
+          $ref: "#/components/schemas/ReadingLevel"
+        favorite_themes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Theme"
+          minItems: 1
+          maxItems: 7
+          uniqueItems: true
+          description: Temas favoritos del niño (mínimo 1)
+          example: [FANTASY, ANIMALS]
+      required: [name, reading_level, favorite_themes]
+
+    CreateStoryRequest:
+      type: object
+      properties:
+        theme:
+          $ref: "#/components/schemas/Theme"
+        custom_prompt:
+          type: string
+          maxLength: 300
+          description: Indicación adicional opcional para personalizar el cuento
+          example: "un dragón que tiene miedo al fuego"
+      required: [theme]
+
+    # ── Resources ─────────────────────────────
+    Profile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identificador único del perfil
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        name:
+          type: string
+          example: "Sofía"
+        reading_level:
+          $ref: "#/components/schemas/ReadingLevel"
+        favorite_themes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Theme"
+          example: [FANTASY, ANIMALS]
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-03-02T14:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-03-02T14:30:00Z"
+      required: [id, name, reading_level, favorite_themes, created_at, updated_at]
+
+    StorySummary:
+      type: object
+      description: Metadatos de un cuento sin fragmentos (para listados)
+      properties:
+        id:
+          type: string
+          format: uuid
+        profile_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: "El dragón que aprendió a volar"
+        theme:
+          $ref: "#/components/schemas/Theme"
+        reading_level:
+          $ref: "#/components/schemas/ReadingLevel"
+        status:
+          $ref: "#/components/schemas/StoryStatus"
+        fragment_count:
+          type: integer
+          minimum: 0
+          description: Cantidad total de fragmentos
+          example: 8
+        created_at:
+          type: string
+          format: date-time
+      required: [id, profile_id, title, theme, reading_level, status, fragment_count, created_at]
+
+    Story:
+      type: object
+      description: Cuento completo con todos sus fragmentos
+      properties:
+        id:
+          type: string
+          format: uuid
+        profile_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: "El dragón que aprendió a volar"
+        theme:
+          $ref: "#/components/schemas/Theme"
+        reading_level:
+          $ref: "#/components/schemas/ReadingLevel"
+        status:
+          $ref: "#/components/schemas/StoryStatus"
+        fragment_count:
+          type: integer
+          minimum: 0
+          example: 8
+        fragments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Fragment"
+          description: Fragmentos ordenados por campo `order`
+        created_at:
+          type: string
+          format: date-time
+      required: [id, profile_id, title, theme, reading_level, status, fragment_count, fragments, created_at]
+
+    Fragment:
+      type: object
+      description: Segmento individual de lectura progresiva
+      properties:
+        id:
+          type: string
+          format: uuid
+        order:
+          type: integer
+          minimum: 1
+          description: Posición del fragmento en el cuento (1-indexed)
+          example: 1
+        content:
+          type: string
+          description: Texto del fragmento
+          example: "Había una vez un pequeño dragón llamado Chispa que vivía en una cueva muy alta."
+      required: [id, order, content]
+
+    # ── Error ─────────────────────────────────
+    Error:
+      type: object
+      description: |
+        Formato uniforme de errores. Todos los endpoints devuelven este esquema
+        cuando ocurre un error (4xx o 5xx).
+      properties:
+        code:
+          type: string
+          description: Código de error legible por máquina
+          enum:
+            - VALIDATION_ERROR
+            - NOT_FOUND
+            - LLM_ERROR
+            - LLM_TIMEOUT
+            - INTERNAL_ERROR
+          example: NOT_FOUND
+        message:
+          type: string
+          description: Mensaje legible para humanos (en español)
+          example: "No se encontró el recurso solicitado"
+        details:
+          type: object
+          additionalProperties: true
+          nullable: true
+          description: Información adicional sobre el error (opcional)
+          example:
+            field: "theme"
+            constraint: "Debe ser uno de: ANIMALS, FANTASY, ADVENTURE"
+      required: [code, message]

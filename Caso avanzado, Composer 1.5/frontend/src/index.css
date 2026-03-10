@@ -1,0 +1,48 @@
+/* Estilo infantil: colores suaves, tipografía legible */
+:root {
+  --color-bg: #faf8f5;
+  --color-surface: #ffffff;
+  --color-primary: #7b9e89;
+  --color-primary-dark: #5a7a65;
+  --color-accent: #e8b4bc;
+  --color-text: #3d3d3d;
+  --color-text-muted: #6b6b6b;
+  --color-error: #c85c5c;
+  --color-success: #5c9e6b;
+  --font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius: 12px;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1, h2, h3 {
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 0.5em;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.35rem; }
+
+button {
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
