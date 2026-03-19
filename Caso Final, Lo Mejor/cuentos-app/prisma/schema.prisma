@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  TUTOR
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+}
+
+enum ReadingLevel {
+  PRE_READER
+  BEGINNER
+  BASIC
+  INTERMEDIATE
+}
+
+enum StoryLength {
+  TINY
+  SHORT
+  MEDIUM
+}
+
+enum Tone {
+  FUNNY
+  ADVENTURE
+  CALM
+  MYSTERY_SOFT
+  FRIENDSHIP
+}
+
+enum SpanishVariant {
+  NEUTRAL
+  LATAM
+  ES
+}
+
+enum SegmentMode {
+  NONE
+  SYLLABLES_ES
+  PHRASES
+  BOTH
+}
+
+enum ModerationStatus {
+  OK
+  FLAGGED
+  HIDDEN
+}
+
+model User {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  passwordHash String
+  role         Role         @default(TUTOR)
+  status       UserStatus   @default(ACTIVE)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  childProfiles ChildProfile[]
+  stories       Story[]
+}
+
+model ChildProfile {
+  id               String         @id @default(uuid())
+  tutorId          String
+  displayName      String
+  age              Int
+  readingLevel     ReadingLevel
+  language         String         @default("es")
+  spanishVariant   SpanishVariant @default(NEUTRAL)
+  preferredLength  StoryLength    @default(SHORT)
+  defaultSegmentMode SegmentMode  @default(PHRASES)
+  interests        String[]       @default([])
+  avoidTopics      String[]       @default([])
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  tutor   User   @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  stories Story[]
+}
+
+model Story {
+  id                  String           @id @default(uuid())
+  tutorId             String
+  childProfileId      String
+  title               String
+  theme               String?
+  contentText         String
+  contentJson         Json
+  paramsJson          Json
+  profileSnapshotJson Json
+  groqModel           String?
+  tokenUsageJson      Json?
+  moderationStatus    ModerationStatus @default(OK)
+  createdAt           DateTime         @default(now())
+
+  tutor        User         @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  childProfile ChildProfile @relation(fields: [childProfileId], references: [id], onDelete: Cascade)
+}
+
+model PromptTemplate {
+  id            String   @id @default(uuid())
+  name          String
+  systemPrompt  String
+  developerPrompt String
+  rulesJson     Json?
+  active        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

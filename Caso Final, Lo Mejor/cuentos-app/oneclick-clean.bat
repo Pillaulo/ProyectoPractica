@@ -1,0 +1,3 @@
+@echo off
+echo [CLEAN] Borrando node_modules, .next, generated y logs...
+powershell -ExecutionPolicy Bypass -File "%~dp0oneclick-clean.ps1"
